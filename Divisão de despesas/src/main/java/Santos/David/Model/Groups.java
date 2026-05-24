@@ -1,6 +1,5 @@
 package Santos.David.Model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.persistence.Id;
 import lombok.EqualsAndHashCode;
@@ -16,8 +15,9 @@ import java.util.Objects;
 @NoArgsConstructor
 @EqualsAndHashCode(of = "id")
 @Entity
-@Table(name = "user")
-public class User {
+@Table(name = "groups")
+public class Groups {
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,13 +26,9 @@ public class User {
     @Column(nullable = false, length = 80)
     private String name;
 
-    @Column(nullable = false, unique = true, length = 80)
-    private String email;
-
-    @JsonIgnore
-    @Column(nullable = false, length = 255)
-    private String passwordHash;
-
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by", nullable = false)
+    private User createdBy;
 
     @Column(nullable = false)
     private LocalDateTime createdIn;

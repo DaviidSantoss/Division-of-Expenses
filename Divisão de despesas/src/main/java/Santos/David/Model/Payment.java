@@ -1,10 +1,19 @@
 package Santos.David.Model;
 
 import jakarta.persistence.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@EqualsAndHashCode(of = "id")
 @Entity
 @Table(name = "payment")
 public class Payment {
@@ -13,82 +22,22 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private Long costId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cost", nullable = false)
+    private Cost cost;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "payer", nullable = false)
+    private User payer;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "receiver", nullable = false)
+    private  User receiver;
 
     @Column(nullable = false)
-    private Long payerId;
-
-    @Column(nullable = false)
-    private  Long receiverId;
-
-    @Column(nullable = false)
-    private double value;
+    private BigDecimal value;
 
     @Column(nullable = false)
     private LocalDateTime paidIn;
 
-    public Payment(){
-
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getCostId() {
-        return costId;
-    }
-
-    public void setCostId(Long costId) {
-        this.costId = costId;
-    }
-
-    public Long getPayerId() {
-        return payerId;
-    }
-
-    public void setPayerId(Long payerId) {
-        this.payerId = payerId;
-    }
-
-    public Long getReceiverId() {
-        return receiverId;
-    }
-
-    public void setReceiverId(Long receiverId) {
-        this.receiverId = receiverId;
-    }
-
-    public double getValue() {
-        return value;
-    }
-
-    public void setValue(double value) {
-        this.value = value;
-    }
-
-    public LocalDateTime getPaidIn() {
-        return paidIn;
-    }
-
-    public void setPaidIn(LocalDateTime paidIn) {
-        this.paidIn = paidIn;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        Payment payment = (Payment) o;
-        return Double.compare(value, payment.value) == 0 && Objects.equals(id, payment.id) && Objects.equals(costId, payment.costId) && Objects.equals(payerId, payment.payerId) && Objects.equals(receiverId, payment.receiverId) && Objects.equals(paidIn, payment.paidIn);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, costId, payerId, receiverId, value, paidIn);
-    }
 }

@@ -1,71 +1,36 @@
 package Santos.David.Model;
 
 import jakarta.persistence.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@EqualsAndHashCode(of = "id")
 @Entity
 @Table(name = "groupofmembers")
 public class GroupOfMembers {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(nullable = false)
-    private long groupid;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "groups", nullable = false)
+    private Groups groups;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user", nullable = false)
+    private  User user;
 
     @Column(nullable = false)
-    private  long userid;
+    private LocalDateTime entered;
 
-    @Column(nullable = false)
-    private Date entered;
 
-    public GroupOfMembers(){
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public long getGroupid() {
-        return groupid;
-    }
-
-    public void setGroupid(long groupid) {
-        this.groupid = groupid;
-    }
-
-    public long getUserid() {
-        return userid;
-    }
-
-    public void setUserid(long userid) {
-        this.userid = userid;
-    }
-
-    public Date getEntered() {
-        return entered;
-    }
-
-    public void setEntered(Date entered) {
-        this.entered = entered;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        GroupOfMembers that = (GroupOfMembers) o;
-        return id == that.id && groupid == that.groupid && userid == that.userid && Objects.equals(entered, that.entered);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, groupid, userid, entered);
-    }
 }
