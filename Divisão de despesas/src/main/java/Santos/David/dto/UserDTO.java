@@ -1,21 +1,27 @@
-package Santos.David.Model;
+package Santos.David.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import jakarta.persistence.Column;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.RepresentationModel;
+
 import java.time.LocalDateTime;
+
 
 @Getter
 @Setter
 @NoArgsConstructor
 @EqualsAndHashCode(of = "id")
-@Entity
-@Table(name = "user")
-public class User {
+@JsonPropertyOrder({"id","name","email","createdIn"})
+public class UserDTO extends RepresentationModel<UserDTO> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,4 +42,6 @@ public class User {
 
     @Column(nullable = false)
     private LocalDateTime createdIn;
+
+
 }

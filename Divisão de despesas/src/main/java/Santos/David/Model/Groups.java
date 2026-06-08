@@ -6,9 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 import java.time.LocalDateTime;
-import java.util.Objects;
 
 @Getter
 @Setter
@@ -17,7 +15,6 @@ import java.util.Objects;
 @Entity
 @Table(name = "groups")
 public class Groups {
-
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,7 +28,8 @@ public class Groups {
     private User createdBy;
 
     @Column(nullable = false)
+    private boolean enabled = true;
+
+    @Column(nullable = false)
     private LocalDateTime createdIn;
-
-
 }

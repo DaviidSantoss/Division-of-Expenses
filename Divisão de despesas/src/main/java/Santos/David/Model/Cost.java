@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Objects;
 
 @Getter
 @Setter
@@ -38,16 +37,11 @@ public class Cost {
     @Enumerated(EnumType.STRING)
     private TypeOfDivision type;
 
-
     @Column(nullable = false)
     private LocalDateTime createdIn;
-
 
     public enum TypeOfDivision{
         EQUALITY,
         BY_VALUE
-
         }
-
-
 }
