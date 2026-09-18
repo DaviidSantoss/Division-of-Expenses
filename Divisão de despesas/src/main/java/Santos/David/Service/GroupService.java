@@ -1,6 +1,8 @@
 package Santos.David.Service;
 
 import Santos.David.Controller.GroupController;
+import Santos.David.Exception.GroupAlreadyExistsException;
+import Santos.David.Exception.GroupRequiredException;
 import Santos.David.Model.GroupOfMembers;
 import Santos.David.Model.Groups;
 import Santos.David.Service.Repository.GroupOfMembersRepository;
@@ -8,7 +10,6 @@ import Santos.David.Service.Repository.GroupRepository;
 import Santos.David.Service.Repository.UserRepository;
 import Santos.David.dto.GroupOfMembersDTO;
 import Santos.David.dto.GroupsDTO;
-import Santos.David.dto.UserDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
@@ -23,13 +24,17 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Service
 public class GroupService {
+
+
     @Autowired
     PagedResourcesAssembler<GroupsDTO> assembler;
 
+
     private final Logger logger = Logger.getLogger(GroupService.class.getName());
-    private GroupRepository repository;
+    private final GroupRepository repository;
     private final GroupOfMembersRepository groupOfMembersRepository;
     private  final UserRepository userRepository;
+
 
     public GroupService(GroupRepository repository, UserRepository userRepository,GroupOfMembersRepository groupOfMembersRepository) {
         this.repository = repository;
@@ -37,17 +42,21 @@ public class GroupService {
         this.groupOfMembersRepository = groupOfMembersRepository;
     }
 
+
     private void  verifyGroupExist(String name){
         boolean exists = repository.existsByName(name);
-        //TODO: Iplementar a exceção correta
-        if (exists) throw new RuntimeException("Group already exists: " + name);
+
+        if(exists){
+            throw new GroupAlreadyExistsException("This group Already Exists." + name);
+        }
     }
+
 
     public GroupsDTO findGroupById(Long id){
         var entity = repository.findById(id).orElseThrow(() -> new RuntimeException("Group Not Found"));
-        var dto = parseObject(entity, GroupsDTO.class);
-        return dto;
+        return parseObject(entity, GroupsDTO.class);
     }
+
 
     public PagedModel<EntityModel<GroupsDTO>> findAllGroup(Pageable pageable) {
 
@@ -55,8 +64,7 @@ public class GroupService {
 
         var groupsDto = repository.findGroupEnabled(pageable)
                 .map(group -> {
-                    var dto = parseObject(group, GroupsDTO.class);
-                    return dto;
+                    return parseObject(group, GroupsDTO.class);
                 });
 
         var selfLink = linkTo(methodOn(GroupController.class)
@@ -69,6 +77,7 @@ public class GroupService {
         return assembler.toModel(groupsDto, selfLink);
     }
 
+
     public GroupsDTO createGroup(GroupsDTO groupsDTO){
        verifyGroupExist(groupsDTO.getName());
 
@@ -80,17 +89,17 @@ public class GroupService {
     }
 
     public GroupsDTO updateGroup (GroupsDTO groupsDTO){
-        //TODO:implementar exceção correta
-        if (groupsDTO == null) throw new RuntimeException("Group is Null");
+        if (groupsDTO == null){
+            throw new GroupRequiredException("Group cannot be null.");
+        }
         var entity = repository.findById(groupsDTO.getId()).orElseThrow(() -> new RuntimeException("Group Not Found"));
 
         logger.info("Group updated successfully.");
 
         entity.setName(groupsDTO.getName());
-        var dto = parseObject(repository.save(entity),GroupsDTO.class);
-
-        return dto;
+        return parseObject(repository.save(entity),GroupsDTO.class);
     }
+
 
     public GroupOfMembersDTO addMember(Long groupId, Long userId){
 
@@ -109,13 +118,12 @@ public class GroupService {
         return parseObject(saved, GroupOfMembersDTO.class);
     }
 
+
     public GroupsDTO disabledGroup(Long id){
 
         var entity = repository.findById(id).orElseThrow(() -> new RuntimeException("No records found for this ID"));
         repository.disableGroup(id);
         entity.setEnabled(false);
-        var dto = parseObject(entity, GroupsDTO.class);
-
-        return dto;
+        return parseObject(entity, GroupsDTO.class);
     }
 }

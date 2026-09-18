@@ -29,4 +29,8 @@ public class ExpenseDivision {
 
     @Column(nullable = false)
     private BigDecimal valueExpense;
+
+    public BigDecimal getValueExpense() {
+        return valueExpense;
+    }
 }

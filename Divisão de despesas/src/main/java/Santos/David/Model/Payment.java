@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Getter
 @Setter
@@ -37,5 +38,13 @@ public class Payment {
 
     @Column(nullable = false)
     private LocalDateTime paidIn;
+
+    public Payment(Cost cost, User payer, User receiver, BigDecimal value, LocalDateTime paidIn) {
+        this.cost = cost;
+        this.payer = payer;
+        this.receiver = receiver;
+        this.value = value;
+        this.paidIn = paidIn;
+    }
 
 }
