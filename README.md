@@ -39,6 +39,9 @@ O Expense Splitter resolve um problema cotidiano: dividir contas entre grupos. S
 # Clone o repositório
 git clone https://github.com/seu-usuario/expense-splitter
 
+# Copie o arquivo de exemplo e preencha com suas credenciais
+cp application.yml.example src/main/resources/application.yml
+
 # Suba o banco com Docker
 docker-compose up -d
 
@@ -46,10 +49,17 @@ docker-compose up -d
 ./mvnw spring-boot:run
 ```
 
-Acesse a documentação Swagger em:
+---
+
+## 📄 Documentação
+
+A documentação completa da API é gerada automaticamente via Swagger e fica disponível após subir a aplicação:
+
 ```
-http://localhost:8080/swagger-ui.html
+http://localhost:8080/swagger-ui/index.html
 ```
+
+Todos os endpoints estão documentados com exemplos de request e response. Para testar endpoints protegidos diretamente pelo Swagger, clique em **Authorize** e insira o token JWT obtido no login.
 
 ---
 
