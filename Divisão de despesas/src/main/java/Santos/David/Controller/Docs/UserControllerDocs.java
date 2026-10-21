@@ -1,5 +1,6 @@
 package Santos.David.Controller.Docs;
 
+import Santos.David.dto.CreateUserDTO;
 import Santos.David.dto.UserDTO;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
@@ -18,7 +19,7 @@ public interface UserControllerDocs {
             @RequestParam(value = "direction",defaultValue = "asc") String direction
     );
 
-    UserDTO createUser(@RequestBody UserDTO user);
+    UserDTO createUser(@RequestBody CreateUserDTO user);
     UserDTO UpdateUser(@RequestBody UserDTO user);
     UserDTO disabledUser(@PathVariable("id") Long id);
     ResponseEntity<Void> deleteUser(@PathVariable("id") Long id);

@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Getter
 @Setter
@@ -16,6 +15,7 @@ import java.util.Optional;
 @Entity
 @Table(name = "payment")
 public class Payment {
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -1,6 +1,5 @@
 package Santos.David.dto;
 
-import Santos.David.Model.Cost;
 import Santos.David.Model.User;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

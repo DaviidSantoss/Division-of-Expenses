@@ -15,17 +15,19 @@ import java.time.LocalDateTime;
 @Table(name = "groupofmembers")
 public class GroupOfMembers {
 
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "groups", nullable = false)
+    @JoinColumn(name = "group_id", nullable = false)
     private Groups groups;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user", nullable = false)
-    private  User user;
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
 
     @Column(nullable = false)
     private LocalDateTime entered;

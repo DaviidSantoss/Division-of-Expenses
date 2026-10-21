@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 @Table(name = "expensedivision")
 public class ExpenseDivision {
 
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

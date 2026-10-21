@@ -1,8 +1,7 @@
 package Santos.David.Service;
 
 import Santos.David.Controller.GroupController;
-import Santos.David.Exception.GroupAlreadyExistsException;
-import Santos.David.Exception.GroupRequiredException;
+import Santos.David.Exception.*;
 import Santos.David.Model.GroupOfMembers;
 import Santos.David.Model.Groups;
 import Santos.David.Service.Repository.GroupOfMembersRepository;
@@ -15,6 +14,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.logging.Logger;
@@ -47,13 +49,13 @@ public class GroupService {
         boolean exists = repository.existsByName(name);
 
         if(exists){
-            throw new GroupAlreadyExistsException("This group Already Exists." + name);
+            throw new GroupAlreadyExistsException();
         }
     }
 
 
     public GroupsDTO findGroupById(Long id){
-        var entity = repository.findById(id).orElseThrow(() -> new RuntimeException("Group Not Found"));
+        var entity = repository.findById(id).orElseThrow(() -> new GroupNotFoundException());
         return parseObject(entity, GroupsDTO.class);
     }
 
@@ -78,21 +80,36 @@ public class GroupService {
     }
 
 
-    public GroupsDTO createGroup(GroupsDTO groupsDTO){
-       verifyGroupExist(groupsDTO.getName());
+    public GroupsDTO createGroup(GroupsDTO groupsDTO) {
+        verifyGroupExist(groupsDTO.getName());
+
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        String email = authentication.getName();
+
+        var user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException());
+
+        var group = new Groups();
+        group.setName(groupsDTO.getName());
+        group.setCreatedBy(user);
+        group.setEnabled(true);
+        group.setCreatedIn(LocalDateTime.now());
+
+        Groups saved = repository.save(group);
 
         logger.info("Group created.");
 
-        var group = parseObject(groupsDTO , Groups.class);
-        Groups saved = repository.save(group);
         return parseObject(saved, GroupsDTO.class);
     }
 
+
     public GroupsDTO updateGroup (GroupsDTO groupsDTO){
         if (groupsDTO == null){
-            throw new GroupRequiredException("Group cannot be null.");
+            throw new GroupRequiredException();
         }
-        var entity = repository.findById(groupsDTO.getId()).orElseThrow(() -> new RuntimeException("Group Not Found"));
+        var entity = repository.findById(groupsDTO.getId()).orElseThrow(() -> new GroupNotFoundException());
 
         logger.info("Group updated successfully.");
 
@@ -103,11 +120,11 @@ public class GroupService {
 
     public GroupOfMembersDTO addMember(Long groupId, Long userId){
 
-        var group = repository.findById(groupId).orElseThrow(() -> new RuntimeException("Group Not Found"));
-        var user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User Not Found"));
-        boolean alreadyMember = groupOfMembersRepository.existsByGroupAndUser(group,user);
+        var group = repository.findById(groupId).orElseThrow(() -> new GroupNotFoundException());
+        var user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
+        boolean alreadyMember = groupOfMembersRepository.existsByGroupsAndUser(group,user);
 
-        if (alreadyMember) throw new RuntimeException("User already in group");
+        if (alreadyMember) throw new UserAlreadyInGroupException();
 
         var member = new GroupOfMembers();
         member.setGroups(group);
@@ -119,11 +136,25 @@ public class GroupService {
     }
 
 
-    public GroupsDTO disabledGroup(Long id){
+    public GroupsDTO disabledGroup(Long id) {
 
-        var entity = repository.findById(id).orElseThrow(() -> new RuntimeException("No records found for this ID"));
-        repository.disableGroup(id);
+        var entity = repository.findById(id)
+                .orElseThrow(() -> new RecordsNotFoundException());
+
         entity.setEnabled(false);
-        return parseObject(entity, GroupsDTO.class);
+
+        var saved = repository.save(entity);
+
+        return parseObject(saved, GroupsDTO.class);
+    }
+
+
+    public ResponseEntity<Void> deleteGroup(Long id){
+        logger.info("Group has been Delete.");
+
+        var entity = repository.findById(id).orElseThrow(() -> new GroupNotFoundException());
+        repository.delete(entity);
+
+        return ResponseEntity.noContent().build();
     }
 }

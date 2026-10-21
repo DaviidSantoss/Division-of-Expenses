@@ -10,11 +10,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.hateoas.Link;
 import org.springframework.hateoas.RepresentationModel;
-
 import java.time.LocalDateTime;
-
 
 @Getter
 @Setter
@@ -22,6 +19,7 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(of = "id")
 @JsonPropertyOrder({"id","name","email","createdIn"})
 public class UserDTO extends RepresentationModel<UserDTO> {
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

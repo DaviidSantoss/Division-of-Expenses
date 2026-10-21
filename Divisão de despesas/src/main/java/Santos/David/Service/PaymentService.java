@@ -1,5 +1,8 @@
 package Santos.David.Service;
 
+import Santos.David.Exception.ExpenseNotFoundException;
+import Santos.David.Exception.ExpenseValueNotFoundException;
+import Santos.David.Exception.UserNotFoundException;
 import Santos.David.Mapper.ObjectMapper;
 import Santos.David.Model.Payment;
 import Santos.David.Service.Repository.CostRepository;
@@ -9,11 +12,12 @@ import Santos.David.Service.Repository.UserRepository;
 import Santos.David.dto.PaymentDTO;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
-
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Service
 public class PaymentService {
+
 
     private final PaymentRepository repository;
     private final ExpenseDivisionRepository expenseDivisionRepository;
@@ -27,34 +31,53 @@ public class PaymentService {
         this.costRepository = costRepository;
     }
 
+
     @Transactional
     public PaymentDTO registerPayment(PaymentDTO dto) {
 
         var findExpense = costRepository.findById(dto.getCostId());
-        if (findExpense.isEmpty()) throw new RuntimeException("Expense not found");
+        if (findExpense.isEmpty()) throw new ExpenseNotFoundException();
 
         var findUserPayer = userRepository.findById(dto.getPayerId());
-        if (findUserPayer.isEmpty()) throw new RuntimeException("User not found");
+        if (findUserPayer.isEmpty()) throw new UserNotFoundException();
 
         var findUserReciver = userRepository.findById(dto.getReceiverId());
-        if (findUserReciver.isEmpty()) throw new RuntimeException("User not found");
+        if (findUserReciver.isEmpty()) throw new UserNotFoundException();
 
-        var findExpenseDivisionByCostAndUser = expenseDivisionRepository.findByCostAndUser(findExpense.get(), findUserPayer.get());
-        if (findExpenseDivisionByCostAndUser.isEmpty()) throw new RuntimeException("Expense not found");
+        var findExpenseDivisionByCostAndUser =
+                expenseDivisionRepository.findByCostAndUser(
+                        findExpense.get(),
+                        findUserPayer.get()
+                );
 
+        if (findExpenseDivisionByCostAndUser.isEmpty())
+            throw new ExpenseNotFoundException();
 
-        if (dto.getValue().compareTo(findExpenseDivisionByCostAndUser.get().getValueExpense()) > 0 ) throw new RuntimeException("Value expense not found");
+        BigDecimal totalDue =
+                findExpenseDivisionByCostAndUser.get().getValueExpense();
 
-       Payment payment = new Payment();
-       payment.setCost(findExpense.get());
-       payment.setPayer(findUserPayer.get());
-       payment.setReceiver(findUserReciver.get());
-       payment.setValue(dto.getValue());
-       payment.setPaidIn(LocalDateTime.now());
-       repository.save(payment);
+        BigDecimal totalPaid =
+                repository.sumValueByPayerAndCost(
+                        findUserPayer.get(),
+                        findExpense.get()
+                );
+
+        BigDecimal remainingAmount =
+                totalDue.subtract(totalPaid);
+
+        if (dto.getValue().compareTo(remainingAmount) > 0) {
+            throw new ExpenseValueNotFoundException();
+        }
+
+        Payment payment = new Payment();
+        payment.setCost(findExpense.get());
+        payment.setPayer(findUserPayer.get());
+        payment.setReceiver(findUserReciver.get());
+        payment.setValue(dto.getValue());
+        payment.setPaidIn(LocalDateTime.now());
+
+        repository.save(payment);
 
         return ObjectMapper.parseObject(payment, PaymentDTO.class);
     }
-
-
 }

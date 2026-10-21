@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(of = "id")
 public class GroupOfMembersDTO {
 
+
     private long id;
     private Groups groups;
     private User user;

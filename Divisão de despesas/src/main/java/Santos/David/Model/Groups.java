@@ -13,8 +13,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @EqualsAndHashCode(of = "id")
 @Entity
-@Table(name = "groups")
+@Table(name = "expense_groups")
 public class Groups {
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -7,7 +7,12 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
 
 @Getter
 @Setter
@@ -15,7 +20,23 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(of = "id")
 @Entity
 @Table(name = "user")
-public class User {
+public class User implements UserDetails, Serializable {
+
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of();
+    }
+
+    @Override
+    public String getPassword() {
+        return this.passwordHash;
+    }
+
+    @Override
+    public String getUsername() {
+        return this.email;
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

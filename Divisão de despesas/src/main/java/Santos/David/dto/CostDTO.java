@@ -1,15 +1,12 @@
 package Santos.David.dto;
 
 import Santos.David.Model.Cost;
-import Santos.David.Model.Groups;
-import Santos.David.Model.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-
 
 @Getter
 @Setter
@@ -25,6 +22,7 @@ public class CostDTO {
     private Cost.TypeOfDivision type;
     private LocalDateTime createdIn;
     private List<DivisionItemDTO> divisions;
+
 
     public enum TypeOfDivision{
         EQUALITY,

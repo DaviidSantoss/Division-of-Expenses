@@ -16,12 +16,13 @@ import java.time.LocalDateTime;
 @Table(name = "cost")
 public class    Cost {
 
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "groups", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "group_id", nullable = false)
     private Groups groups;
 
     @ManyToOne(fetch = FetchType.LAZY)

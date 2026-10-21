@@ -1,0 +1,12 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/expense_splitter
+    username: SEU_USUARIO
+    password: SUA_SENHA
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+jwt:
+  secret: SUA_CHAVE_BASE64
+  expiration-ms: 3600000

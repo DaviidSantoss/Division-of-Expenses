@@ -1,7 +1,7 @@
 package Santos.David.Controller.Docs;
 
+import Santos.David.dto.GroupOfMembersDTO;
 import Santos.David.dto.GroupsDTO;
-import Santos.David.dto.UserDTO;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.ResponseEntity;
@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 public interface GroupsControllerDocs {
 
-    UserDTO findGroupById(@PathVariable("id") Long id);
+    GroupsDTO findGroupById(@PathVariable("id") Long id);
 
     ResponseEntity<PagedModel<EntityModel<GroupsDTO>>> findAll(
             @RequestParam(value = "page",defaultValue = "0") Integer page,
@@ -19,8 +19,9 @@ public interface GroupsControllerDocs {
             @RequestParam(value = "direction",defaultValue = "asc") String direction
     );
 
-    UserDTO createGroup(@RequestBody UserDTO user);
-    UserDTO UpdateGroup(@RequestBody UserDTO user);
-    UserDTO disabledGroup(@PathVariable("id") Long id);
+    GroupsDTO createGroup(@RequestBody GroupsDTO groups);
+    GroupsDTO UpdateGroup(@RequestBody GroupsDTO groups);
+    GroupsDTO disabledGroup(@PathVariable("id") Long id);
+    GroupOfMembersDTO addMember(@PathVariable("groupId") Long groupId, @PathVariable("userId") Long userId);
     ResponseEntity<Void> deleteGroup(@PathVariable("id") Long id);
 }

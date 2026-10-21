@@ -21,4 +21,7 @@ public interface GroupRepository extends JpaRepository<Groups,Long> {
 
     @Query("SELECT u FROM Groups u WHERE u.enabled = true")
     Page<User> findByGroup(Groups group, Pageable pageable);
+
+    @Query("SELECT g FROM Groups g WHERE g.enabled = true")
+    Page<Groups> findGroupEnabled(Pageable pageable);
 }

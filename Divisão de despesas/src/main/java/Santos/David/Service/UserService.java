@@ -1,5 +1,10 @@
 package Santos.David.Service;
 
+import Santos.David.Exception.RecordsNotFoundException;
+import Santos.David.Exception.UserDisableExcpetion;
+import Santos.David.Exception.UserNotFoundException;
+import Santos.David.Mapper.ObjectMapper;
+import Santos.David.dto.CreateUserDTO;
 import org.springframework.data.domain.Pageable;
 import java.util.logging.Logger;
 import Santos.David.Controller.UserController;
@@ -19,6 +24,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 @Service
 public class UserService {
 
+
     @Autowired
     PagedResourcesAssembler<UserDTO> assembler;
 
@@ -26,21 +32,22 @@ public class UserService {
     private final UserRepository repository;
     private final PasswordEncoder passwordEncoder;
 
+
     private User verifyEnableAndId(Long id){
-        //TODO: Iplementar a exceção correta
-        var entity = repository.findById(id).orElseThrow(() -> new RuntimeException("User Not Found"));
+        var entity = repository.findById(id).orElseThrow(() -> new UserNotFoundException());
 
         if (!entity.isEnabled()){
-            //TODO: Iplementar a exceção correta
-            throw  new RuntimeException("User is disable");
+            throw  new UserDisableExcpetion();
         }
         return entity;
     }
+
 
     public UserService(UserRepository repository, PasswordEncoder passwordEncoder) {
         this.repository = repository;
         this.passwordEncoder = passwordEncoder;
     }
+
 
     public UserDTO findUserById(long id){
         logger.info("Found a User");
@@ -49,6 +56,7 @@ public class UserService {
         var dto = parseObject(entity, UserDTO.class);
         return dto;
     }
+
 
     public PagedModel<EntityModel<UserDTO>> findAllUser(Pageable pageable) {
 
@@ -71,24 +79,30 @@ public class UserService {
         return assembler.toModel(usersDto, selfLink);
     }
 
-    public UserDTO createUser(UserDTO userDTO){
-        //TODO:implementar exceção correta
-        if (userDTO == null) throw new RuntimeException("User is Null");
-        logger.info("User created.");
 
-        var users = parseObject(userDTO , User.class);
-        users.setPasswordHash(passwordEncoder.encode(userDTO.getPasswordHash()));
-        User saved = repository.save(users);
-        var dto =  parseObject(saved,UserDTO.class);
+    public UserDTO createUser(CreateUserDTO userDTO) {
+        if (userDTO == null) {
+            throw new IllegalArgumentException("Os dados do usuário são obrigatórios.");
+        }
 
+        User user = new User();
+        user.setName(userDTO.name());
+        user.setEmail(userDTO.email());
+        user.setPasswordHash(passwordEncoder.encode(userDTO.password()));
+        user.setEnabled(true);
+        user.setCreatedIn(java.time.LocalDateTime.now());
+
+        User saved = repository.save(user);
+
+        UserDTO dto = parseObject(saved, UserDTO.class);
         addHateoasLinks(dto);
 
         return dto;
     }
 
+
     public UserDTO updateUser (UserDTO userDTO){
-        //TODO:implementar exceção correta
-        if (userDTO == null) throw new RuntimeException("User is Null");
+        if (userDTO == null) throw new UserNotFoundException();
         var entity = verifyEnableAndId(userDTO.getId());
 
         logger.info("User updated successfully.");
@@ -102,9 +116,10 @@ public class UserService {
         return dto;
     }
 
+
     public UserDTO disabledUser(Long id){
 
-        var entity = repository.findById(id).orElseThrow(() -> new RuntimeException("No records found for this ID"));
+        var entity = repository.findById(id).orElseThrow(() -> new RecordsNotFoundException());
         repository.disableUser(id);
         entity.setEnabled(false);
         var dto = parseObject(entity, UserDTO.class);
@@ -114,6 +129,7 @@ public class UserService {
         return dto;
     }
 
+
     public void deleteUser(Long id){
         logger.info("User has been Delete.");
 
@@ -121,10 +137,11 @@ public class UserService {
         repository.delete(entity);
     }
 
+
     private static void addHateoasLinks(UserDTO dto) {
         dto.add(linkTo(methodOn(UserController.class).findUserById(dto.getId())).withSelfRel().withType("GET"));
         dto.add(linkTo(methodOn(UserController.class).findAll(1,12,"asc")).withRel("findAll").withType("GET"));
-        dto.add(linkTo(methodOn(UserController.class).createUser(dto)).withRel("create").withType("POST"));
+//        dto.add(linkTo(methodOn(UserController.class).createUser()).withRel("create").withType("POST"));
         dto.add(linkTo(methodOn(UserController.class).UpdateUser(dto)).withRel("update").withType("PUT"));
         dto.add(linkTo(methodOn(UserController.class).disabledUser(dto.getId())).withRel("disable").withType("PATCH"));
         dto.add(linkTo(methodOn(UserController.class).deleteUser(dto.getId())).withRel("delete").withType("DELETE"));

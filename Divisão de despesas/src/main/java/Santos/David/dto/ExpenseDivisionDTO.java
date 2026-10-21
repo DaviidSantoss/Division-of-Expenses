@@ -2,8 +2,6 @@ package Santos.David.dto;
 
 import Santos.David.Model.Cost;
 import Santos.David.Model.User;
-import jakarta.persistence.*;
-
 import java.math.BigDecimal;
 
 public class ExpenseDivisionDTO {
